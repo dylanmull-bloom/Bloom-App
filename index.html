@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Prenatal Nutrition Planner - Bloom</title>
+<style>
+  :root {
+    --color-background-primary: #ffffff;
+    --color-background-secondary: #f5f5f5;
+    --color-background-tertiary: #efefef;
+    --color-text-primary: #1a1a1a;
+    --color-text-secondary: #666666;
+    --color-text-info: #0366d6;
+    --color-border-tertiary: #e1e1e1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--color-background-tertiary); }
+  .app-container { width: 100%; max-width: 900px; margin: 0 auto; padding: 1rem; }
+  .header { background: var(--color-background-secondary); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; }
+  h1 { font-size: 22px; margin: 0 0 0.5rem; color: var(--color-text-primary); }
+  .subtitle { color: var(--color-text-secondary); font-size: 14px; margin: 0; }
+  .form-section { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem; }
+  .form-group { margin-bottom: 1.25rem; }
+  label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 0.5rem; }
+  input, select { width: 100%; padding: 0.5rem; border: 0.5px solid var(--color-border-tertiary); border-radius: 4px; font-size: 14px; }
+  .radio-group { display: flex; flex-direction: column; gap: 0.75rem; }
+  .radio-option { display: flex; align-items: flex-start; gap: 0.75rem; }
+  input[type="radio"], input[type="checkbox"] { width: 18px; height: 18px; margin-top: 0.125rem; flex-shrink: 0; }
+  .button-group { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+  button { padding: 0.75rem 1.25rem; border: 0.5px solid #cccccc; border-radius: 4px; background: transparent; color: var(--color-text-primary); font-size: 14px; font-weight: 500; cursor: pointer; }
+  button:hover { background: var(--color-background-secondary); }
+  button.primary { background: var(--color-text-info); color: white; border-color: var(--color-text-info); }
+  button.primary:hover { opacity: 0.9; }
+  .hidden { display: none; }
+  .progress-bar { width: 100%; height: 6px; background: var(--color-background-tertiary); border-radius: 3px; margin: 0.5rem 0 1rem; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--color-text-info); }
+  .score-card { background: var(--color-background-secondary); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem; }
+  .score-number { font-size: 32px; font-weight: 500; color: var(--color-text-info); }
+  .score-label { font-size: 13px; color: var(--color-text-secondary); margin-top: 0.5rem; }
+</style>
+</head>
+<body>
+<div class="app-container">
+  <div class="header">
+    <h1>Prenatal Nutrition Planner - Bloom</h1>
+    <p class="subtitle">Personalized meal planning for a healthy pregnancy</p>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width: 33%;"></div>
+    </div>
+  </div>
+
+  <div id="step1" class="form-section">
+    <h2 style="font-size: 18px; margin: 0 0 1rem;">Step 1: Let's start with the basics</h2>
+    <div class="form-group">
+      <label>How far along are you?</label>
+      <select id="trimester">
+        <option value="">Select your trimester</option>
+        <option value="1">First Trimester (Weeks 1-13)</option>
+        <option value="2">Second Trimester (Weeks 14-27)</option>
+        <option value="3">Third Trimester (Weeks 28-40)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>What type of diet do you follow?</label>
+      <div class="radio-group">
+        <div class="radio-option">
+          <input type="radio" id="diet-balanced" name="diet" value="balanced" checked>
+          <label for="diet-balanced" style="margin: 0; font-weight: normal;">Balanced (meat, poultry, fish)</label>
+        </div>
+        <div class="radio-option">
+          <input type="radio" id="diet-vegetarian" name="diet" value="vegetarian">
+          <label for="diet-vegetarian" style="margin: 0; font-weight: normal;">Vegetarian (dairy/eggs)</label>
+        </div>
+        <div class="radio-option">
+          <input type="radio" id="diet-vegan" name="diet" value="vegan">
+          <label for="diet-vegan" style="margin: 0; font-weight: normal;">Vegan (no animal products)</label>
+        </div>
+      </div>
+    </div>
+    <div class="button-group">
+      <button class="primary" onclick="goToStep(2)">Next →</button>
+    </div>
+  </div>
+
+  <div id="step2" class="form-section hidden">
+    <h2 style="font-size: 18px; margin: 0 0 1rem;">Step 2: Your dietary patterns</h2>
+    <div class="form-group">
+      <label>How many eggs per week?</label>
+      <div class="radio-group">
+        <div class="radio-option"><input type="radio" id="eggs-0" name="eggs" value="0" checked><label for="eggs-0" style="margin: 0; font-weight: normal;">0 per week</label></div>
+        <div class="radio-option"><input type="radio" id="eggs-1" name="eggs" value="1-2"><label for="eggs-1" style="margin: 0; font-weight: normal;">1-2 per week</label></div>
+        <div class="radio-option"><input type="radio" id="eggs-3" name="eggs" value="3-4"><label for="eggs-3" style="margin: 0; font-weight: normal;">3-4 per week</label></div>
+        <div class="radio-option"><input type="radio" id="eggs-5" name="eggs" value="5+"><label for="eggs-5" style="margin: 0; font-weight: normal;">5+ per week</label></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>How much red meat per week?</label>
+      <div class="radio-group">
+        <div class="radio-option"><input type="radio" id="meat-0" name="redmeat" value="0" checked><label for="meat-0" style="margin: 0; font-weight: normal;">Never</label></div>
+        <div class="radio-option"><input type="radio" id="meat-1" name="redmeat" value="1-2"><label for="meat-1" style="margin: 0; font-weight: normal;">1-2 servings/week</label></div>
+        <div class="radio-option"><input type="radio" id="meat-3" name="redmeat" value="3+"><label for="meat-3" style="margin: 0; font-weight: normal;">3+ servings/week</label></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>How much fatty fish per week?</label>
+      <div class="radio-group">
+        <div class="radio-option"><input type="radio" id="fish-0" name="fish" value="0" checked><label for="fish-0" style="margin: 0; font-weight: normal;">Never</label></div>
+        <div class="radio-option"><input type="radio" id="fish-1" name="fish" value="1-2"><label for="fish-1" style="margin: 0; font-weight: normal;">1-2 servings/week</label></div>
+        <div class="radio-option"><input type="radio" id="fish-3" name="fish" value="3+"><label for="fish-3" style="margin: 0; font-weight: normal;">3+ servings/week</label></div>
+      </div>
+    </div>
+    <div class="button-group">
+      <button onclick="goToStep(1)">← Back</button>
+      <button class="primary" onclick="goToStep(3)">Next →</button>
+    </div>
+  </div>
+
+  <div id="step3" class="form-section hidden">
+    <h2 style="font-size: 18px; margin: 0 0 1rem;">Step 3: Any symptoms?</h2>
+    <div style="color: var(--color-text-secondary); font-size: 13px; margin-bottom: 1rem;">Check all that apply (optional)</div>
+    <div class="radio-group">
+      <div class="radio-option"><input type="checkbox" id="symptom-fatigue" name="symptoms" value="fatigue"><label for="symptom-fatigue" style="margin: 0; font-weight: normal;">Extreme fatigue or brain fog</label></div>
+      <div class="radio-option"><input type="checkbox" id="symptom-mood" name="symptoms" value="mood"><label for="symptom-mood" style="margin: 0; font-weight: normal;">Mood changes or anxiety</label></div>
+    </div>
+    <div class="button-group">
+      <button onclick="goToStep(2)">← Back</button>
+      <button class="primary" onclick="goToStep(4)">Next →</button>
+    </div>
+  </div>
+
+  <div id="step4" class="form-section hidden">
+    <h2 style="font-size: 18px; margin: 0 0 1rem;">Step 4: Health factors</h2>
+    <div class="form-group">
+      <label>Do you have PCOS?</label>
+      <div class="radio-group">
+        <div class="radio-option"><input type="radio" id="pcos-no" name="pcos" value="no" checked><label for="pcos-no" style="margin: 0; font-weight: normal;">No</label></div>
+        <div class="radio-option"><input type="radio" id="pcos-yes" name="pcos" value="yes"><label for="pcos-yes" style="margin: 0; font-weight: normal;">Yes</label></div>
+      </div>
+    </div>
+    <div class="button-group">
+      <button onclick="goToStep(3)">← Back</button>
+      <button class="primary" onclick="generateResults()">Get My Personalized Plan →</button>
+    </div>
+  </div>
+
+  <div id="results" class="hidden">
+    <div class="score-card">
+      <p style="margin: 0 0 0.5rem; font-size: 13px; color: var(--color-text-secondary);">Your Nutritional Score</p>
+      <div class="score-number" id="scoreNumber">0%</div>
+      <div class="score-label">Based on your dietary patterns</div>
+    </div>
+    <div style="background: var(--color-background-secondary); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+      <h3 style="margin-top: 0;">Your Plan Includes:</h3>
+      <p>✓ Personalized 7-day meal plans</p>
+      <p>✓ Recipe links & instructions</p>
+      <p>✓ Shopping list generation</p>
+      <p>✓ Dietary recommendations</p>
+      <p>✓ Pricing tiers (free, basic, premium)</p>
+    </div>
+    <button class="primary" onclick="restartForm()" style="width: 100%;">Start Over</button>
+  </div>
+</div>
+
+<script>
+function goToStep(step) {
+  document.getElementById('step1').classList.toggle('hidden', step !== 1);
+  document.getElementById('step2').classList.toggle('hidden', step !== 2);
+  document.getElementById('step3').classList.toggle('hidden', step !== 3);
+  document.getElementById('step4').classList.toggle('hidden', step !== 4);
+  const progress = ((step - 1) / 3) * 100;
+  document.getElementById('progressFill').style.width = progress + '%';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function calculateScore() {
+  let score = 0;
+  const eggs = document.querySelector('input[name="eggs"]:checked')?.value || '0';
+  const eggScores = { '0': 0, '1-2': 30, '3-4': 50, '5+': 100 };
+  score += eggScores[eggs] || 0;
+  
+  const meat = document.querySelector('input[name="redmeat"]:checked')?.value || '0';
+  const meatScores = { '0': 10, '1-2': 80, '3+': 100 };
+  score += meatScores[meat] || 0;
+  
+  const fish = document.querySelector('input[name="fish"]:checked')?.value || '0';
+  const fishScores = { '0': 0, '1-2': 80, '3+': 100 };
+  score += fishScores[fish] || 0;
+  
+  return Math.round(score / 3);
+}
+
+function generateResults() {
+  const score = calculateScore();
+  document.getElementById('scoreNumber').textContent = score + '%';
+  document.getElementById('step1').classList.add('hidden');
+  document.getElementById('step2').classList.add('hidden');
+  document.getElementById('step3').classList.add('hidden');
+  document.getElementById('step4').classList.add('hidden');
+  document.getElementById('header').classList.add('hidden');
+  document.getElementById('results').classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restartForm() {
+  document.querySelectorAll('input[type="radio"]').forEach(el => el.checked = false);
+  document.querySelectorAll('input[type="checkbox"]').forEach(el => el.checked = false);
+  document.querySelector('input[name="diet"][value="balanced"]').checked = true;
+  document.querySelector('input[name="eggs"][value="0"]').checked = true;
+  document.querySelector('input[name="redmeat"][value="0"]').checked = true;
+  document.querySelector('input[name="fish"][value="0"]').checked = true;
+  document.querySelector('input[name="pcos"][value="no"]').checked = true;
+  document.getElementById('results').classList.add('hidden');
+  document.getElementById('header').classList.remove('hidden');
+  goToStep(1);
+}
+</script>
+</body>
+</html>
