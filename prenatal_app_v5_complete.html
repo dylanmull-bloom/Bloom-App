@@ -1,0 +1,538 @@
+<!-- Prenatal Nutrition App v5 - with Recipes & Premium Tier -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif); background: var(--color-background-tertiary); }
+  .app-container { width: 100%; max-width: 900px; margin: 0 auto; }
+  .header { background: var(--color-background-secondary); padding: 1.5rem; border-radius: var(--border-radius-lg); margin-bottom: 1.5rem; }
+  .pricing-banner { background: linear-gradient(135deg, #378ADD 0%, #185FA5 100%); color: white; padding: 1rem; border-radius: var(--border-radius-lg); margin-bottom: 1.5rem; text-align: center; }
+  .pricing-toggle { display: flex; justify-content: center; gap: 1rem; margin-bottom: 1.5rem; }
+  .tier-badge { background: var(--color-background-secondary); border: 2px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 0.75rem 1.25rem; cursor: pointer; font-weight: 500; transition: all 0.2s; }
+  .tier-badge.active { background: var(--color-background-info); color: white; border-color: var(--color-background-info); }
+  .tier-badge:hover { background: var(--color-background-secondary); }
+  .pricing-card { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.5rem; margin-bottom: 1rem; }
+  .pricing-card.featured { border: 2px solid var(--color-background-info); }
+  .card-title { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 0.5rem; }
+  .card-price { font-size: 24px; font-weight: 500; color: var(--color-text-info); margin-bottom: 1rem; }
+  .card-price-small { font-size: 14px; color: var(--color-text-secondary); }
+  .feature-list { list-style: none; margin-bottom: 1rem; }
+  .feature-list li { font-size: 14px; color: var(--color-text-secondary); padding: 0.5rem 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .feature-list li:last-child { border-bottom: none; }
+  .feature-list li.included::before { content: "✓ "; color: var(--color-text-success); font-weight: 500; }
+  .feature-list li.excluded { text-decoration: line-through; opacity: 0.6; }
+  .feature-list li.excluded::before { content: "✗ "; color: var(--color-text-secondary); }
+  .cta-button { width: 100%; padding: 0.75rem; background: var(--color-background-info); color: white; border: none; border-radius: var(--border-radius-md); font-weight: 500; cursor: pointer; transition: opacity 0.2s; }
+  .cta-button:hover { opacity: 0.9; }
+  .progress-bar { width: 100%; height: 6px; background: var(--color-background-tertiary); border-radius: 3px; margin: 0.5rem 0 1rem; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--color-background-info); transition: width 0.3s ease; }
+  .form-section { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+  .form-group { margin-bottom: 1.25rem; }
+  label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 0.5rem; color: var(--color-text-primary); }
+  .hint { font-size: 13px; color: var(--color-text-secondary); margin-top: 0.25rem; }
+  input[type="text"], input[type="number"], select, textarea { width: 100%; padding: 0.5rem; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); font-size: 14px; background: var(--color-background-primary); color: var(--color-text-primary); }
+  input:focus, select:focus { outline: none; border-color: var(--color-border-info); box-shadow: 0 0 0 2px rgba(55, 138, 221, 0.1); }
+  .radio-group, .checkbox-group { display: flex; flex-direction: column; gap: 0.75rem; }
+  .radio-option, .checkbox-option { display: flex; align-items: flex-start; gap: 0.75rem; }
+  input[type="radio"], input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; margin-top: 0.125rem; flex-shrink: 0; }
+  .button-group { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+  button { padding: 0.75rem 1.25rem; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: transparent; color: var(--color-text-primary); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+  button:hover { background: var(--color-background-secondary); }
+  button.primary { background: var(--color-background-info); color: white; border-color: var(--color-background-info); }
+  button.primary:hover { opacity: 0.9; }
+  .score-card { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 1.5rem; }
+  .score-number { font-size: 32px; font-weight: 500; color: var(--color-text-info); }
+  .score-label { font-size: 13px; color: var(--color-text-secondary); margin-top: 0.5rem; }
+  .nutrient-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+  .nutrient-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 0.75rem; text-align: center; }
+  .nutrient-icon { font-size: 20px; margin-bottom: 0.5rem; }
+  .nutrient-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 0.25rem; }
+  .nutrient-status { font-size: 12px; font-weight: 500; }
+  .status-red { color: var(--color-text-danger); }
+  .status-yellow { color: var(--color-text-warning); }
+  .status-green { color: var(--color-text-success); }
+  .status-blue { color: var(--color-text-info); }
+  .recommendation { background: var(--color-background-secondary); border-left: 4px solid var(--color-border-info); border-radius: var(--border-radius-md); padding: 1rem; margin-bottom: 1rem; }
+  .recommendation-title { font-weight: 500; color: var(--color-text-primary); margin-bottom: 0.5rem; font-size: 14px; }
+  .recommendation-text { font-size: 14px; color: var(--color-text-secondary); line-height: 1.5; }
+  .meal-day { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1rem; margin-bottom: 1rem; }
+  .meal-day-title { font-size: 16px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 1rem; }
+  .meal-item { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 0.75rem; margin-bottom: 0.75rem; }
+  .meal-type { font-size: 12px; color: var(--color-text-secondary); font-weight: 500; text-transform: uppercase; margin-bottom: 0.25rem; }
+  .meal-description { font-size: 13px; color: var(--color-text-primary); margin-bottom: 0.5rem; }
+  .meal-nutrients { font-size: 12px; color: var(--color-text-secondary); font-style: italic; margin-bottom: 0.5rem; }
+  .recipe-button { background: var(--color-background-info); color: white; border: none; border-radius: var(--border-radius-md); padding: 0.5rem 0.75rem; font-size: 12px; cursor: pointer; transition: opacity 0.2s; }
+  .recipe-button:hover { opacity: 0.9; }
+  .recipe-button.locked { background: var(--color-text-secondary); cursor: not-allowed; opacity: 0.6; }
+  .premium-badge { display: inline-block; background: var(--color-background-info); color: white; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 10px; margin-left: 0.5rem; }
+  .recipe-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+  .recipe-modal.show { display: flex; }
+  .recipe-modal-content { background: var(--color-background-primary); border-radius: var(--border-radius-lg); padding: 2rem; max-width: 600px; max-height: 80vh; overflow-y: auto; }
+  .recipe-modal-close { float: right; font-size: 24px; cursor: pointer; color: var(--color-text-secondary); }
+  .recipe-modal-close:hover { color: var(--color-text-primary); }
+  .hidden { display: none; }
+  .step-indicator { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 1rem; }
+  .loading { text-align: center; padding: 2rem; }
+  .spinner { display: inline-block; width: 40px; height: 40px; border: 4px solid var(--color-background-tertiary); border-top-color: var(--color-background-info); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .shopping-list { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1rem; margin-bottom: 1rem; }
+  .shopping-category { margin-bottom: 1rem; }
+  .shopping-category-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 0.5rem; }
+  .shopping-items { font-size: 13px; color: var(--color-text-secondary); }
+</style>
+</head>
+<body>
+<div class="app-container">
+  <!-- PRICING BANNER -->
+  <div class="pricing-banner" id="pricingBanner">
+    <p style="margin: 0; font-size: 14px;">Get recipes, meal planning & personalized nutrition</p>
+  </div>
+
+  <!-- PRICING TIER TOGGLE (Hidden until results) -->
+  <div id="pricingToggle" class="hidden" style="margin-bottom: 1.5rem;">
+    <div style="text-align: center; margin-bottom: 1rem;">
+      <h3 style="font-size: 16px; color: var(--color-text-primary); margin-bottom: 0.5rem;">Choose Your Plan</h3>
+      <p style="font-size: 13px; color: var(--color-text-secondary);">Upgrade anytime to unlock recipes & advanced features</p>
+    </div>
+    
+    <!-- FREE TIER -->
+    <div class="pricing-card">
+      <div class="card-title">Free</div>
+      <div class="card-price">$0<span class="card-price-small">/month</span></div>
+      <ul class="feature-list">
+        <li class="included">Nutritional assessment</li>
+        <li class="included">Meal plan (basic)</li>
+        <li class="excluded">Recipe links</li>
+        <li class="excluded">Test ordering</li>
+      </ul>
+      <button class="cta-button" onclick="setPricingTier('free')">Continue with Free</button>
+    </div>
+
+    <!-- BASIC TIER -->
+    <div class="pricing-card featured">
+      <div style="text-align: center; margin-bottom: 1rem;">
+        <span style="background: var(--color-background-info); color: white; padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 12px;">RECOMMENDED</span>
+      </div>
+      <div class="card-title">Basic</div>
+      <div class="card-price">$24.99<span class="card-price-small">/month</span></div>
+      <ul class="feature-list">
+        <li class="included">Nutritional assessment</li>
+        <li class="included">Meal plan with recipes</li>
+        <li class="included">Recipe links & instructions</li>
+        <li class="included">Save favorite meals</li>
+        <li class="excluded">Test ordering</li>
+      </ul>
+      <button class="cta-button" onclick="setPricingTier('basic')">Upgrade to Basic</button>
+    </div>
+
+    <!-- PREMIUM TIER -->
+    <div class="pricing-card">
+      <div class="card-title">Premium</div>
+      <div class="card-price">$34.99<span class="card-price-small">/month</span></div>
+      <ul class="feature-list">
+        <li class="included">Everything in Basic +</li>
+        <li class="included">Test ordering integration</li>
+        <li class="included">Upload OB lab results</li>
+        <li class="included">Advanced nutrition tracking</li>
+        <li class="included">Weekly reminders</li>
+      </ul>
+      <button class="cta-button" onclick="setPricingTier('premium')">Upgrade to Premium</button>
+    </div>
+  </div>
+
+  <div class="header" id="header">
+    <h1 style="margin: 0 0 0.5rem; font-size: 22px; color: var(--color-text-primary);">Prenatal Nutrition Planner</h1>
+    <p style="margin: 0; color: var(--color-text-secondary); font-size: 14px;">Personalized meal planning based on your pregnancy stage and nutritional needs</p>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width: 33%;"></div>
+    </div>
+    <div class="step-indicator">Step <span id="currentStep">1</span> of 4</div>
+  </div>
+
+  <!-- STEP 1-4: Form sections (same as v4) -->
+  <div id="step1" class="form-section">
+    <h2 style="font-size: 18px; margin: 0 0 1rem; color: var(--color-text-primary);">Let's start with the basics</h2>
+    <div class="form-group">
+      <label>How far along are you in your pregnancy?</label>
+      <select id="trimester">
+        <option value="">Select your trimester</option>
+        <option value="pre">Pre-conception (planning)</option>
+        <option value="1">First Trimester (Weeks 1-13)</option>
+        <option value="2">Second Trimester (Weeks 14-27)</option>
+        <option value="3">Third Trimester (Weeks 28-40)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>What week of pregnancy are you in? (optional)</label>
+      <input type="number" id="week" min="0" max="42" placeholder="e.g., 12">
+    </div>
+    <div class="form-group">
+      <label>What type of diet do you follow?</label>
+      <div class="radio-group">
+        <div class="radio-option">
+          <input type="radio" id="diet-balanced" name="diet" value="balanced" checked>
+          <label for="diet-balanced" class="radio-label">Balanced diet (eat meat, poultry, fish, vegetables, grains)</label>
+        </div>
+        <div class="radio-option">
+          <input type="radio" id="diet-vegetarian" name="diet" value="vegetarian">
+          <label for="diet-vegetarian" class="radio-label">Vegetarian (no meat/fish but eat dairy/eggs)</label>
+        </div>
+        <div class="radio-option">
+          <input type="radio" id="diet-vegan" name="diet" value="vegan">
+          <label for="diet-vegan" class="radio-label">Vegan (no animal products)</label>
+        </div>
+        <div class="radio-option">
+          <input type="radio" id="diet-other" name="diet" value="other">
+          <label for="diet-other" class="radio-label">Other (please specify)</label>
+        </div>
+      </div>
+      <div id="otherDietInput" class="hidden" style="margin-left: 2rem; margin-top: 0.5rem;">
+        <input type="text" id="otherDietText" placeholder="Describe your diet...">
+      </div>
+    </div>
+    <div class="button-group">
+      <button class="primary" onclick="goToStep(2)">Next</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: DIETARY PATTERNS -->
+  <div id="step2" class="form-section hidden">
+    <h2 style="font-size: 18px; margin: 0 0 1rem; color: var(--color-text-primary);">Tell us about your diet</h2>
+    <div class="form-group">
+      <label>How many eggs do you eat per week?</label>
+      <div class="radio-group">
+        <div class="radio-option"><input type="radio" id="eggs-0" name="eggs" value="0" checked><label for="eggs-0" style="margin: 0;">0 per week</label></div>
+        <div class="radio-option"><input type="radio" id="eggs-1" name="eggs" value="1-2"><label for="eggs-1" style="margin: 0;">1-2 per week</label></div>
+        <div class="radio-option"><input type="radio" id="eggs-3" name="eggs" value="3-4"><label for="eggs-3" style="margin: 0;">3-4 per week</label></div>
+        <div class="radio-option"><input type="radio" id="eggs-5" name="eggs" value="5+"><label for="eggs-5" style="margin: 0;">5+ per week</label></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>How much red meat (beef, lamb) do you eat per week?</label>
+      <div class="radio-group">
+        <div class="radio-option"><input type="radio" id="meat-0" name="redmeat" value="0" checked><label for="meat-0" style="margin: 0;">Never / don't eat</label></div>
+        <div class="radio-option"><input type="radio" id="meat-1" name="redmeat" value="<1"><label for="meat-1" style="margin: 0;">Less than 1 serving per week</label></div>
+        <div class="radio-option"><input type="radio" id="meat-2" name="redmeat" value="1-2"><label for="meat-2" style="margin: 0;">1-2 servings per week</label></div>
+        <div class="radio-option"><input type="radio" id="meat-3" name="redmeat" value="3+"><label for="meat-3" style="margin: 0;">3+ servings per week</label></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>How much fatty fish (salmon, mackerel, sardines) do you eat per week?</label>
+      <div class="radio-group">
+        <div class="radio-option"><input type="radio" id="fish-0" name="fish" value="0" checked><label for="fish-0" style="margin: 0;">Never / don't eat</label></div>
+        <div class="radio-option"><input type="radio" id="fish-1" name="fish" value="<1"><label for="fish-1" style="margin: 0;">Less than 1 serving per week</label></div>
+        <div class="radio-option"><input type="radio" id="fish-2" name="fish" value="1-2"><label for="fish-2" style="margin: 0;">1-2 servings per week</label></div>
+        <div class="radio-option"><input type="radio" id="fish-3" name="fish" value="3+"><label for="fish-3" style="margin: 0;">3+ servings per week</label></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>How many servings of leafy greens do you eat per week?</label>
+      <div class="radio-group">
+        <div class="radio-option"><input type="radio" id="greens-0" name="greens" value="0-2" checked><label for="greens-0" style="margin: 0;">0-2 servings</label></div>
+        <div class="radio-option"><input type="radio" id="greens-1" name="greens" value="3-4"><label for="greens-1" style="margin: 0;">3-4 servings</label></div>
+        <div class="radio-option"><input type="radio" id="greens-2" name="greens" value="5-6"><label for="greens-2" style="margin: 0;">5-6 servings</label></div>
+        <div class="radio-option"><input type="radio" id="greens-3" name="greens" value="7+"><label for="greens-3" style="margin: 0;">7+ servings</label></div>
+      </div>
+    </div>
+    <div class="button-group">
+      <button onclick="goToStep(1)">Back</button>
+      <button class="primary" onclick="goToStep(3)">Next</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: SYMPTOMS -->
+  <div id="step3" class="form-section hidden">
+    <h2 style="font-size: 18px; margin: 0 0 1rem; color: var(--color-text-primary);">Are you experiencing any of these symptoms?</h2>
+    <div class="hint" style="margin-bottom: 1rem;">Check all that apply (optional)</div>
+    <div class="checkbox-group">
+      <div class="checkbox-option"><input type="checkbox" id="symptom-fatigue" name="symptoms" value="fatigue"><label for="symptom-fatigue" style="margin: 0;">Extreme fatigue or brain fog</label></div>
+      <div class="checkbox-option"><input type="checkbox" id="symptom-cramps" name="symptoms" value="cramps"><label for="symptom-cramps" style="margin: 0;">Muscle cramps, especially legs</label></div>
+      <div class="checkbox-option"><input type="checkbox" id="symptom-hairloss" name="symptoms" value="hairloss"><label for="symptom-hairloss" style="margin: 0;">Hair loss or weak nails</label></div>
+      <div class="checkbox-option"><input type="checkbox" id="symptom-mood" name="symptoms" value="mood"><label for="symptom-mood" style="margin: 0;">Mood changes, depression, or anxiety</label></div>
+    </div>
+    <div class="button-group">
+      <button onclick="goToStep(2)">Back</button>
+      <button class="primary" onclick="goToStep(4)">Next</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: HEALTH FACTORS -->
+  <div id="step4" class="form-section hidden">
+    <h2 style="font-size: 18px; margin: 0 0 1rem; color: var(--color-text-primary);">Any health factors we should know?</h2>
+    <div class="form-group">
+      <label>Do you have PCOS?</label>
+      <div class="radio-group">
+        <div class="radio-option"><input type="radio" id="pcos-no" name="pcos" value="no" checked><label for="pcos-no" style="margin: 0;">No</label></div>
+        <div class="radio-option"><input type="radio" id="pcos-yes" name="pcos" value="yes"><label for="pcos-yes" style="margin: 0;">Yes</label></div>
+      </div>
+    </div>
+    <div class="button-group">
+      <button onclick="goToStep(3)">Back</button>
+      <button class="primary" onclick="generateRecommendations()">Get My Personalized Plan</button>
+    </div>
+  </div>
+
+  <!-- RESULTS SECTION -->
+  <div id="results" class="hidden">
+    <div class="score-card">
+      <p style="margin: 0 0 0.5rem; font-size: 13px; color: var(--color-text-secondary);">Your Nutritional Completeness Score</p>
+      <div class="score-number" id="scoreNumber">0%</div>
+      <div class="score-label" id="scoreDescription">Calculating...</div>
+    </div>
+
+    <div id="mealPlanSection" style="margin-bottom: 1.5rem;">
+      <h3 style="font-size: 16px; margin: 0 0 1rem; color: var(--color-text-primary);">Your Personalized 7-Day Meal Plan</h3>
+      <button class="primary" onclick="generateMealPlan()" style="width: 100%; margin-bottom: 1rem;">Generate Meal Plan</button>
+      <div id="mealPlanContent"></div>
+    </div>
+
+    <div style="margin-bottom: 1.5rem;">
+      <h3 style="font-size: 16px; margin: 0 0 1rem; color: var(--color-text-primary);">Top Dietary Recommendations</h3>
+      <div id="recommendationsContainer"></div>
+    </div>
+
+    <button class="primary" onclick="restartForm()" style="width: 100%;">Start Over</button>
+  </div>
+
+  <!-- RECIPE MODAL -->
+  <div id="recipeModal" class="recipe-modal">
+    <div class="recipe-modal-content">
+      <span class="recipe-modal-close" onclick="closeRecipeModal()">&times;</span>
+      <div id="recipeContent"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Global state
+let currentPricingTier = 'free';
+
+// Recipe database (simplified for demo - expand with full 50 recipes)
+const recipeDatabase = {
+  'Iron-Boosting Veggie Omelet': {
+    servings: 1,
+    prepTime: '5 min',
+    cookTime: '10 min',
+    ingredients: ['2 eggs', '1 cup spinach', '1/2 cup bell peppers', '1/4 cup mushrooms', '1 tbsp olive oil', 'salt/pepper', '1 orange'],
+    instructions: 'Heat oil in non-stick pan. Add veggies, sauté 2 min. Pour beaten eggs, fold when set. Serve with fresh orange.',
+    nutrients: 'Iron, choline, folate, vitamin C (enhances iron absorption)',
+    note: 'Pair orange juice or citrus with iron meals to maximize absorption'
+  },
+  'Salmon with Roasted Broccoli & Sweet Potato': {
+    servings: 1,
+    prepTime: '10 min',
+    cookTime: '20 min',
+    ingredients: ['4 oz salmon fillet', '2 cups broccoli florets', '1 medium sweet potato', '2 tbsp olive oil', 'lemon', 'garlic', 'salt/pepper'],
+    instructions: 'Roast sweet potato and broccoli at 425°F (15 min). Add salmon, roast 5 min more. Finish with lemon and garlic.',
+    nutrients: 'DHA/omega-3, folate, vitamin A, iron',
+    note: 'Salmon is critical for fetal brain/eye development'
+  },
+  'Lentil & Vegetable Soup': {
+    servings: 4,
+    prepTime: '15 min',
+    cookTime: '30 min',
+    ingredients: ['1 cup red lentils', '4 cups vegetable broth', '2 carrots', '2 celery stalks', '1 can diced tomatoes', '2 cups spinach', '1 tbsp olive oil', 'onion', 'garlic', 'cumin'],
+    instructions: 'Sauté onion/garlic. Add broth, lentils, carrots, celery. Simmer 20 min. Add tomatoes and spinach, cook 5 min more.',
+    nutrients: 'Iron, folate, fiber, protein',
+    note: 'Lentils + tomato (vitamin C) = enhanced iron absorption'
+  }
+};
+
+// Event listeners
+document.getElementById('diet-balanced')?.addEventListener('change', toggleOtherDiet);
+document.getElementById('diet-vegetarian')?.addEventListener('change', toggleOtherDiet);
+document.getElementById('diet-vegan')?.addEventListener('change', toggleOtherDiet);
+document.getElementById('diet-other')?.addEventListener('change', toggleOtherDiet);
+
+function toggleOtherDiet() {
+  const otherInput = document.getElementById('otherDietInput');
+  const otherRadio = document.getElementById('diet-other');
+  if (otherRadio && otherRadio.checked) {
+    otherInput.classList.remove('hidden');
+    document.getElementById('otherDietText').focus();
+  } else if (otherInput) {
+    otherInput.classList.add('hidden');
+  }
+}
+
+function setPricingTier(tier) {
+  currentPricingTier = tier;
+  document.getElementById('pricingToggle').classList.add('hidden');
+  document.getElementById('header').classList.remove('hidden');
+  document.getElementById('step1').classList.remove('hidden');
+}
+
+function goToStep(step) {
+  document.getElementById('step1').classList.toggle('hidden', step !== 1);
+  document.getElementById('step2').classList.toggle('hidden', step !== 2);
+  document.getElementById('step3').classList.toggle('hidden', step !== 3);
+  document.getElementById('step4').classList.toggle('hidden', step !== 4);
+  document.getElementById('progressFill').style.width = ((step - 1) * 25) + '%';
+  document.getElementById('currentStep').textContent = step;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function calculateScore() {
+  let score = 0, total = 0;
+  const eggs = document.querySelector('input[name="eggs"]:checked')?.value || '0';
+  const eggScores = { '0': 0, '1-2': 30, '3-4': 50, '5+': 100 };
+  score += eggScores[eggs];
+  total += 100;
+  
+  const meat = document.querySelector('input[name="redmeat"]:checked')?.value || '0';
+  const meatScores = { '0': 10, '<1': 40, '1-2': 80, '3+': 100 };
+  score += meatScores[meat];
+  total += 100;
+  
+  const fish = document.querySelector('input[name="fish"]:checked')?.value || '0';
+  const fishScores = { '0': 0, '<1': 30, '1-2': 80, '3+': 100 };
+  score += fishScores[fish];
+  total += 100;
+  
+  const greens = document.querySelector('input[name="greens"]:checked')?.value || '0-2';
+  const greenScores = { '0-2': 20, '3-4': 60, '5-6': 90, '7+': 100 };
+  score += greenScores[greens];
+  total += 100;
+  
+  return Math.round((score / total) * 100);
+}
+
+function generateRecommendations() {
+  const score = calculateScore();
+  document.getElementById('scoreNumber').textContent = score + '%';
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('header').classList.add('hidden');
+  document.getElementById('step1').classList.add('hidden');
+  document.getElementById('step2').classList.add('hidden');
+  document.getElementById('step3').classList.add('hidden');
+  document.getElementById('step4').classList.add('hidden');
+  document.getElementById('pricingToggle').classList.remove('hidden');
+  
+  // Show pricing options
+  const pricingDiv = document.getElementById('pricingToggle');
+  pricingDiv.scrollIntoView({ behavior: 'smooth' });
+}
+
+function generateMealPlan() {
+  const mealPlanDiv = document.getElementById('mealPlanContent');
+  mealPlanDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p style="margin-top: 1rem; font-size: 14px; color: var(--color-text-secondary);">Generating your personalized meal plan...</p></div>';
+
+  setTimeout(() => {
+    mealPlanDiv.innerHTML = getSampleMealPlan();
+  }, 2000);
+}
+
+function getSampleMealPlan() {
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const meals = {
+    'breakfast': ['Iron-Boosting Veggie Omelet', 'Oatmeal with berries and walnuts', 'Greek yogurt with granola', 'Whole wheat pancakes with blueberries', 'Veggie scramble with toast', 'Smoothie with spinach and berries', 'Eggs with whole grain toast'],
+    'lunch': ['Iron-Rich Beef & Spinach Salad', 'Salmon with Roasted Broccoli & Sweet Potato', 'Chicken & Kale Caesar Wrap', 'Lentil & Vegetable Soup', 'Turkey Sandwich', 'Tuna Salad with Leafy Greens', 'Vegetable Curry with Rice'],
+    'dinner': ['Salmon Fillet with Asparagus', 'Ground Beef Tacos with Spinach', 'Baked Chicken with Root Vegetables', 'Lentil Bolognese with Pasta', 'Spinach & Cheese Stuffed Chicken', 'Black Bean & Quinoa Casserole', 'Herb-Crusted Salmon']
+  };
+
+  let html = '';
+  days.forEach((day, i) => {
+    const breakfast = meals.breakfast[i];
+    const lunch = meals.lunch[i];
+    const dinner = meals.dinner[i];
+    
+    html += `
+      <div class="meal-day">
+        <div class="meal-day-title">📅 ${day}</div>
+        <div class="meal-item">
+          <div class="meal-type">Breakfast</div>
+          <div class="meal-description">${breakfast}</div>
+          <div class="meal-nutrients">Iron, choline, folate</div>
+          ${currentPricingTier !== 'free' ? `<button class="recipe-button" onclick="showRecipe('${breakfast}')">View Recipe</button>` : `<button class="recipe-button locked" title="Upgrade to Basic for recipes">Recipe (locked)</button>`}
+        </div>
+        <div class="meal-item">
+          <div class="meal-type">Lunch</div>
+          <div class="meal-description">${lunch}</div>
+          <div class="meal-nutrients">Iron, folate, protein</div>
+          ${currentPricingTier !== 'free' ? `<button class="recipe-button" onclick="showRecipe('${lunch}')">View Recipe</button>` : `<button class="recipe-button locked" title="Upgrade to Basic for recipes">Recipe (locked)</button>`}
+        </div>
+        <div class="meal-item">
+          <div class="meal-type">Dinner</div>
+          <div class="meal-description">${dinner}</div>
+          <div class="meal-nutrients">Iron, B vitamins, minerals</div>
+          ${currentPricingTier !== 'free' ? `<button class="recipe-button" onclick="showRecipe('${dinner}')">View Recipe</button>` : `<button class="recipe-button locked" title="Upgrade to Basic for recipes">Recipe (locked)</button>`}
+        </div>
+      </div>
+    `;
+  });
+
+  return html;
+}
+
+function showRecipe(mealName) {
+  const recipe = recipeDatabase[mealName] || {
+    servings: 1,
+    prepTime: '10 min',
+    cookTime: '15 min',
+    ingredients: ['Ingredient 1', 'Ingredient 2', 'Ingredient 3'],
+    instructions: 'Mix ingredients and cook until done.',
+    nutrients: 'Iron, folate, B vitamins',
+    note: 'Enjoy this nutritious meal!'
+  };
+
+  const content = `
+    <h2 style="margin-bottom: 1rem; color: var(--color-text-primary);">${mealName}</h2>
+    <div style="background: var(--color-background-secondary); padding: 1rem; border-radius: var(--border-radius-md); margin-bottom: 1rem;">
+      <p style="margin: 0 0 0.5rem; font-size: 13px; color: var(--color-text-secondary);"><strong>Servings:</strong> ${recipe.servings} | <strong>Prep:</strong> ${recipe.prepTime} | <strong>Cook:</strong> ${recipe.cookTime}</p>
+    </div>
+    
+    <h3 style="font-size: 14px; margin: 1rem 0 0.5rem; color: var(--color-text-primary);">Ingredients</h3>
+    <ul style="margin: 0 0 1rem; padding-left: 1.25rem; color: var(--color-text-secondary); font-size: 13px;">
+      ${recipe.ingredients.map(ing => `<li>${ing}</li>`).join('')}
+    </ul>
+    
+    <h3 style="font-size: 14px; margin: 1rem 0 0.5rem; color: var(--color-text-primary);">Instructions</h3>
+    <p style="margin: 0 0 1rem; color: var(--color-text-secondary); font-size: 13px; line-height: 1.6;">${recipe.instructions}</p>
+    
+    <h3 style="font-size: 14px; margin: 1rem 0 0.5rem; color: var(--color-text-primary);">Nutrients Provided</h3>
+    <p style="margin: 0 0 1rem; color: var(--color-text-secondary); font-size: 13px;">${recipe.nutrients}</p>
+    
+    <div style="background: var(--color-background-secondary); padding: 0.75rem; border-radius: var(--border-radius-md); border-left: 4px solid var(--color-background-info);">
+      <p style="margin: 0; color: var(--color-text-secondary); font-size: 13px;"><strong>💡 Tip:</strong> ${recipe.note}</p>
+    </div>
+  `;
+
+  document.getElementById('recipeContent').innerHTML = content;
+  document.getElementById('recipeModal').classList.add('show');
+}
+
+function closeRecipeModal() {
+  document.getElementById('recipeModal').classList.remove('show');
+}
+
+function restartForm() {
+  document.getElementById('results').classList.add('hidden');
+  document.getElementById('pricingToggle').classList.add('hidden');
+  document.getElementById('header').classList.remove('hidden');
+  document.querySelectorAll('input[type="radio"]').forEach(el => el.checked = false);
+  document.querySelectorAll('input[type="checkbox"]').forEach(el => el.checked = false);
+  document.querySelector('input[name="diet"][value="balanced"]').checked = true;
+  document.querySelector('input[name="eggs"][value="0"]').checked = true;
+  document.querySelector('input[name="redmeat"][value="0"]').checked = true;
+  document.querySelector('input[name="fish"][value="0"]').checked = true;
+  document.querySelector('input[name="greens"][value="0-2"]').checked = true;
+  document.querySelector('input[name="pcos"][value="no"]').checked = true;
+  document.getElementById('otherDietText').value = '';
+  document.getElementById('otherDietInput').classList.add('hidden');
+  document.getElementById('week').value = '';
+  currentPricingTier = 'free';
+  goToStep(1);
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+  const modal = document.getElementById('recipeModal');
+  if (event.target === modal) {
+    modal.classList.remove('show');
+  }
+}
+</script>
+</body>
+</html>
